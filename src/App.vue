@@ -1,28 +1,41 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <SearchBox :search="fetchCurrentWeather" :isDisabled="loading" />
+    <div class="overview">
+        <p>{{ currentWeather.name }}</p>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import SearchBox from "@/components/SearchBox";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
+    SearchBox
+  },
+  data() {
+    return {
+      currentWeather: {},
+      loading: false
+    };
+  },
+  methods: {
+    async fetchCurrentWeather(query) {
+      try {
+        this.loading = true;
+        const response = await fetch(
+          `https://${process.env.VUE_APP_API_PATH}?q=${query}&units=${process.env.VUE_APP_UNITS_OF_MEASUREMENT || "standard"}&appid=${process.env.VUE_APP_API_KEY}`
+        );
+        const data = await response.json();
+        this.currentWeather = data;
+      } catch (e) {
+        console.log(e.message);
+      } finally {
+        this.loading = false;
+      }
+    }
   }
-}
+};
 </script>
-
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
